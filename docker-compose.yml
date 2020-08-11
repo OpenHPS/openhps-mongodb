@@ -1,0 +1,12 @@
+version: "2"
+services:
+  test:
+    build: .
+    volumes:
+    - './node_modules'
+    depends_on:
+    - mongo
+  mongo:
+    image: mongo
+    ports:
+    - "27017:27017"
