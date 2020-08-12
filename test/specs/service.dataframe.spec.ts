@@ -1,6 +1,6 @@
 import { Model, DataFrame, ModelBuilder, LoggingSinkNode, DataObject, DataFrameService, DataObjectService } from "@openhps/core";
 import { expect } from 'chai';
-import { MongoDataService } from "../../src/service";
+import { MongoDataServiceDriver } from "../../src/service";
 
 describe('data frame service', () => {
     describe('output layer', () => {
@@ -10,11 +10,11 @@ describe('data frame service', () => {
         before(function(done) {
             this.timeout(5000);
             ModelBuilder.create()
-                .addService(new DataObjectService(new MongoDataService(DataObject, {
+                .addService(new DataObjectService(new MongoDataServiceDriver(DataObject, {
                     dbURL: "mongodb://mongo:27017",
                     dbName: "test"
                 })))
-                .addService(new DataFrameService(new MongoDataService(DataFrame, {
+                .addService(new DataFrameService(new MongoDataServiceDriver(DataFrame, {
                     dbURL: "mongodb://mongo:27017",
                     dbName: "test"
                 })))

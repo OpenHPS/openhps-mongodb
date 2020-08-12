@@ -4,14 +4,14 @@ import { DummySensorObject } from '../mock/object/DummySensorObject';
 
 import { expect } from 'chai';
 import 'mocha';
-import { MongoDataService } from '../../src/service';
+import { MongoDataServiceDriver } from '../../src/service';
 
 describe('data object', () => {
     describe('service', () => {
         var objectDataService: DataObjectService<DataObject>;
 
         before((done) => {
-            objectDataService = new DataObjectService(new MongoDataService(DataObject, {
+            objectDataService = new DataObjectService(new MongoDataServiceDriver(DataObject, {
                 dbURL: "mongodb://mongo:27017",
                 dbName: "test"
             }));
@@ -19,11 +19,11 @@ describe('data object', () => {
             objectDataService.emitAsync("build").then(() => {
                 objectDataService.deleteAll().then(_ => {
                     var object1 = new DataObject();
-                    object1.setCurrentPosition(new Absolute2DPosition(5, 6));
+                    object1.setPosition(new Absolute2DPosition(5, 6));
                     object1.displayName = "Test";
         
                     var object2 = new DataObject();
-                    object2.setCurrentPosition(new Absolute3DPosition(5, 6, 2));
+                    object2.setPosition(new Absolute3DPosition(5, 6, 2));
                     object2.displayName = "Test";
         
                     const insertPromises = new Array();
@@ -47,8 +47,8 @@ describe('data object', () => {
 
         it('should find a object by 2d location', (done) => {
             objectDataService.findByPosition(new Absolute2DPosition(5, 6)).then(objects => {
-                expect(objects[0].getCurrentPosition()).to.be.instanceOf(Absolute2DPosition);
-                const location = objects[0].getCurrentPosition() as Absolute2DPosition;
+                expect(objects[0].getPosition()).to.be.instanceOf(Absolute2DPosition);
+                const location = objects[0].getPosition() as Absolute2DPosition;
                 expect(location.x).to.equal(5);
                 expect(location.y).to.equal(6);
                 expect(objects[0].displayName).to.equal("Test");
@@ -60,8 +60,8 @@ describe('data object', () => {
 
         it('should find a object by 3d location', (done) => {
             objectDataService.findByPosition(new Absolute3DPosition(5, 6, 2)).then(objects => {
-                expect(objects[0].getCurrentPosition()).to.be.instanceOf(Absolute3DPosition);
-                const location = objects[0].getCurrentPosition() as Absolute3DPosition;
+                expect(objects[0].getPosition()).to.be.instanceOf(Absolute3DPosition);
+                const location = objects[0].getPosition() as Absolute3DPosition;
                 expect(location.x).to.equal(5);
                 expect(location.y).to.equal(6);
                 expect(location.z).to.equal(2);
@@ -130,7 +130,7 @@ describe('data object', () => {
         var objectDataService: DataObjectService<DataObject>;
         
         before((done) => {
-            objectDataService = new DataObjectService(new MongoDataService(DataObject, {
+            objectDataService = new DataObjectService(new MongoDataServiceDriver(DataObject, {
                 dbURL: "mongodb://mongo:27017",
                 dbName: "test"
             }));
@@ -182,7 +182,7 @@ describe('data object', () => {
         var objectDataService: DataObjectService<DataObject>;
         
         before((done) => {
-            objectDataService = new DataObjectService(new MongoDataService(DataObject, {
+            objectDataService = new DataObjectService(new MongoDataServiceDriver(DataObject, {
                 dbURL: "mongodb://mongo:27017",
                 dbName: "test"
             }));

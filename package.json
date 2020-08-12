@@ -34,7 +34,7 @@
     "system"
   ],
   "dependencies": {
-    "@openhps/core": "0.1.0-alpha.68",
+    "@openhps/core": "0.1.0-alpha.69",
     "mongodb": "^3.6.0"
   },
   "devDependencies": {

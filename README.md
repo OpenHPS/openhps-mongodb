@@ -23,19 +23,40 @@
 
 <br />
 
-**Note: OpenHPS is in development and scheduled for development release in September 2020.**
-
 This repository contains the MongoDB component for OpenHPS (Open Source Hybrid Positioning System). It includes a data service that can be used to store data frames, objects and node data in a MongoDB database.
 
 OpenHPS is a graph-based data processing positioning framework. It is designed to support many different use cases ranging from simple positioning such as detecting the position of a pawn on a chessboard using RFID, to indoor positioning methods using multiple cameras.
 
 ## Features
-- ```MongoDataService``` that can be used to initialize a ```DataObjectService``` or as a standalone data service.
+- ```MongoDataServiceDriver``` that can be used to initialize a ```DataService``` or as a standalone data service.
 
 ## Getting Started
 If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps/core with the following command.
 ```bash
 npm install @openhps/mongodb --save
+```
+
+### Usage
+You can use a ```MongoDataServiceDriver``` in a data service such as a ```DataObjectService``` to
+use the driver to store data objects of a specific type.
+
+```typescript
+import { ModelBuilder, DataObjectService, DataObject, ReferenceSpace } from '@openhps/core';
+import { MongoDataServiceDriver } from '@openhps/mongodb';
+
+ModelBuilder.create()
+    .addService(new DataObjectService(new MongoDataServiceDriver(DataObject, {
+        dbURL: "mongodb://mongo:27017",
+        dbName: "myobjects"
+    })))
+    .addService(new DataObjectService(new MongoDataServiceDriver(ReferenceSpace, {
+        dbURL: "mongodb://mongo:27017",
+        dbName: "myspaces"
+    })))
+    .addShape(/* ... */)
+    .build().then(model => {
+        /* ... */
+    });
 ```
 
 ## Contributors

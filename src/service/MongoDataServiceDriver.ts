@@ -1,8 +1,8 @@
-import { DataSerializer, DataService, FilterQuery } from '@openhps/core';
-import { MongoClient, Db, Collection } from 'mongodb';
+import { DataSerializer, DataServiceDriver, FilterQuery } from '@openhps/core';
+import { MongoClient, Db, Collection, IndexSpecification } from 'mongodb';
 import { DatabaseOptions } from './DatabaseOptions';
 
-export class MongoDataService<I, T> extends DataService<I, T> {
+export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     private _options: DatabaseOptions;
     private _db: Db;
     private _client: MongoClient;
@@ -33,24 +33,21 @@ export class MongoDataService<I, T> extends DataService<I, T> {
                 this._db = client.db(this._options.dbName);
                 
                 this._collection = this._db.collection(this.name.toLowerCase());
-                this._collection.createIndexes(
-                    [
-                        { 
-                            key: {
-                                uid: 1
-                            } 
-                        },
-                        { 
-                            key: {
-                                createdTimestamp: 1
-                            } 
-                        }
-                    ],
-                    function(err2: any, results: any) {
-                        resolve();
-                    }
-                );
+                resolve();
             });
+        });
+    }
+
+    public createIndexes(indexes: IndexSpecification[]): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this._collection.createIndexes(indexes,
+                function(err: any, results: any) {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                }
+            );
         });
     }
 
