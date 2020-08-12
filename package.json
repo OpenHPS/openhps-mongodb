@@ -14,7 +14,9 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha --experimental-worker",
-    "test:docker": "docker-compose build && docker-compose run test",
+    "test:docker": "docker-compose build && docker-compose run --entrypoint 'npm run test' app",
+    "test:jenkins": "jenkins-mocha --cobertura",
+    "test:jenkins:docker": "docker-compose build && docker-compose run --entrypoint 'npm run test:jenkins' app",
     "cover": "nyc mocha && nyc report --reporter=cobertura",
     "lint": "tslint -c tslint.json --project tsconfig.json",
     "clean": "shx rm -rf ./dist && shx rm -rf ./docs",

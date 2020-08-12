@@ -1,9 +1,9 @@
 version: "2"
 services:
-  test:
+  app:
     build: .
     volumes:
-    - './node_modules'
+    - ./artifacts:/usr/src/app/artifacts
     depends_on:
     - mongo
   mongo:
