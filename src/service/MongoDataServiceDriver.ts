@@ -9,11 +9,11 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     private _collection: Collection<any>;
 
     constructor(dataType: new () => T, options: DatabaseOptions) {
-        super(dataType as unknown as new () => T);
+        super((dataType as unknown) as new () => T);
         this._options = options;
 
-        this.once("build", this.connect.bind(this));
-        this.once("destroy", this.disconnect.bind(this));
+        this.once('build', this.connect.bind(this));
+        this.once('destroy', this.disconnect.bind(this));
     }
 
     public connect(): Promise<void> {
@@ -21,33 +21,35 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             return Promise.resolve();
         }
         return new Promise((resolve, reject) => {
-            MongoClient.connect(this._options.dbURL, {
-                useUnifiedTopology: true,
-                useNewUrlParser: true,
-            }, (err: any, client: MongoClient) => {
-                if (err !== null) {
-                    return reject(err);
-                }
+            MongoClient.connect(
+                this._options.dbURL,
+                {
+                    useUnifiedTopology: true,
+                    useNewUrlParser: true,
+                },
+                (err: any, client: MongoClient) => {
+                    if (err !== null) {
+                        return reject(err);
+                    }
 
-                this._client = client;
-                this._db = client.db(this._options.dbName);
-                
-                this._collection = this._db.collection(this.name.toLowerCase());
-                resolve();
-            });
+                    this._client = client;
+                    this._db = client.db(this._options.dbName);
+
+                    this._collection = this._db.collection(this.name.toLowerCase());
+                    resolve();
+                },
+            );
         });
     }
 
     public createIndexes(indexes: IndexSpecification[]): Promise<void> {
         return new Promise((resolve, reject) => {
-            this._collection.createIndexes(indexes,
-                function(err: any, results: any) {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
+            this._collection.createIndexes(indexes, (err: any) => {
+                if (err) {
+                    return reject(err);
                 }
-            );
+                resolve();
+            });
         });
     }
 
@@ -67,14 +69,15 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             if (this._collection === undefined) {
                 return reject(new Error(`MongoDB connection not ready!`));
             }
-            this._collection.findOne(query).then(serializedObject => {
-                if (serializedObject === null) {
-                    return reject(`${this.dataType.name} not found!`);
-                }
-                resolve(DataSerializer.deserialize(serializedObject, this.dataType as any));
-            }).catch(ex => {
-                reject(ex);
-            });
+            this._collection
+                .findOne(query)
+                .then((serializedObject) => {
+                    if (serializedObject === null) {
+                        return reject(`${this.dataType.name} not found!`);
+                    }
+                    resolve(DataSerializer.deserialize(serializedObject, this.dataType as any));
+                })
+                .catch(reject);
         });
     }
 
@@ -87,7 +90,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 if (err !== null) {
                     return reject(err);
                 }
-                const deserializedResults = new Array();
+                const deserializedResults: any[] = [];
                 result.forEach((r: any) => {
                     deserializedResults.push(DataSerializer.deserialize(r, this.dataType as any));
                 });
@@ -101,27 +104,30 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             if (this._collection === undefined) {
                 return reject(new Error(`MongoDB connection not ready!`));
             }
-            this._collection.findOne({ _id: id }).then(existingObject => {
-                const preparedObject = DataSerializer.serialize(object);
-                preparedObject._id = id;
-                if (existingObject === null) {
-                    this._collection.insertOne(preparedObject, function(err: any, result: any) {
-                        if (err !== null) {
-                            return reject(err);
-                        }
-                        resolve(object);
-                    });
-                } else {
-                    this._collection.updateOne({ _id: id }, {  $set: preparedObject }, function(err: any, result: any) {
-                        if (err !== null) {
-                            return reject(err);
-                        }
-                        resolve(object);
-                    });
-                }
-            }).catch(ex => {
-                reject(ex);
-            });
+            this._collection
+                .findOne({ _id: id })
+                .then((existingObject) => {
+                    const preparedObject = DataSerializer.serialize(object);
+                    preparedObject._id = id;
+                    if (existingObject === null) {
+                        this._collection.insertOne(preparedObject, (err: any) => {
+                            if (err !== null) {
+                                return reject(err);
+                            }
+                            resolve(object);
+                        });
+                    } else {
+                        this._collection.updateOne({ _id: id }, { $set: preparedObject }, (err: any) => {
+                            if (err !== null) {
+                                return reject(err);
+                            }
+                            resolve(object);
+                        });
+                    }
+                })
+                .catch((ex) => {
+                    reject(ex);
+                });
         });
     }
 
@@ -130,11 +136,12 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             if (this._collection === undefined) {
                 return reject(new Error(`MongoDB connection not ready!`));
             }
-            this._collection.deleteOne({ _id: id }).then(() => {
-                resolve();
-            }).catch(ex => {
-                reject(ex);
-            });
+            this._collection
+                .deleteOne({ _id: id })
+                .then(() => {
+                    resolve();
+                })
+                .catch(reject);
         });
     }
 
@@ -143,12 +150,12 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             if (this._collection === undefined) {
                 return reject(new Error(`MongoDB connection not ready!`));
             }
-            this._collection.deleteMany(query).then(() => {
-                resolve();
-            }).catch(ex => {
-                reject(ex);
-            });
+            this._collection
+                .deleteMany(query)
+                .then(() => {
+                    resolve();
+                })
+                .catch(reject);
         });
     }
-
 }
