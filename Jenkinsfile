@@ -25,6 +25,7 @@ pipeline {
             steps {
                 echo 'Testing ...'
                 sh 'npm run test:jenkins:docker'
+                sh "docker-compose down"
             }
         }
         stage('Publish') {
