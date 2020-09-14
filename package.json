@@ -33,17 +33,10 @@
     "mongodb"
   ],
   "dependencies": {
-    "@openhps/core": "0.1.0-alpha.76",
+    "@openhps/core": ">=0.1.0-alpha.76",
     "mongodb": "^3.6.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.11.6",
-    "@babel/core": "^7.11.6",
-    "@babel/node": "^7.10.5",
-    "@babel/plugin-transform-runtime": "^7.11.5",
-    "@babel/preset-env": "^7.11.5",
-    "@babel/register": "^7.11.5",
-    "@babel/runtime": "^7.11.2",
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
     "@types/chai": "^4.2.12",
