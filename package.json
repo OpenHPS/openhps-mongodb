@@ -44,8 +44,10 @@
     "mongodb"
   ],
   "dependencies": {
-    "@openhps/core": ">=0.2.0-alpha.3",
     "mongodb": "^3.6.3"
+  },
+  "peerDependencies": {
+    "@openhps/core": ">=0.2.0-alpha.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
