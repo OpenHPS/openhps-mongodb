@@ -8,6 +8,7 @@ pipeline {
                 sh 'npm run clean'
                 sh 'npm run build:cjs'
                 sh 'npm run build:esm'
+                sh 'npm run build:docker'
             }
         }
         stage('Quality') {
@@ -67,7 +68,7 @@ pipeline {
                 allowMissing: false,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
-                reportDir: 'docs',
+                reportDir: 'docs/out',
                 reportFiles: '*.*',
                 reportName: "Documentation"
             ])

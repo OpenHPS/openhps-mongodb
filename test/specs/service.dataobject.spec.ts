@@ -125,7 +125,7 @@ describe('data object', () => {
         });
 
     });
-    describe('input layer', () => {
+    describe('source', () => {
         var model: Model<DataFrame, DataFrame>;
         var objectDataService: DataObjectService<DataObject>;
         
@@ -162,7 +162,8 @@ describe('data object', () => {
             var object = new DummySensorObject("123");
             var frame = new DataFrame();
             frame.addObject(object);
-            model.push(frame).then(_ => {
+
+            model.onceCompleted(frame.uid).then(() => {
                 // Check if it is stored
                 objectDataService.findAll().then(objects => {
                     expect(objects[0].displayName).to.equal("Hello");
@@ -170,14 +171,14 @@ describe('data object', () => {
                 }).catch(ex => {
                     done(ex);
                 });
-            }).catch(ex => {
-                done(ex);
-            });
+            }).catch(done);
+
+            model.push(frame);
         });
 
     });
 
-    describe('output layer', () => {
+    describe('sink', () => {
         var model: Model<DataFrame, DataFrame>;
         var objectDataService: DataObjectService<DataObject>;
         
@@ -208,7 +209,8 @@ describe('data object', () => {
             object.displayName = "Test";
             var frame = new DataFrame();
             frame.addObject(object);
-            model.push(frame).then(() => {
+
+            model.onceCompleted(frame.uid).then(() => {
                 // Check if it is stored
                 objectDataService.findByUID("4321").then(object => {
                     expect(object.displayName).to.equal("Test");
@@ -216,9 +218,9 @@ describe('data object', () => {
                 }).catch(ex => {
                     done(ex);
                 });
-            }).catch(ex => {
-                done(ex);
-            });
+            }).catch(done);
+
+            model.push(frame);
         });
 
         it('should update objects', (done) => {
@@ -228,8 +230,8 @@ describe('data object', () => {
 
             var frame = new DataFrame();
             frame.source = object;
-            model.push(frame).then(_ => {
 
+            model.onceCompleted(frame.uid).then(() => {
                 objectDataService.findByUID("4").then((savedObject: DummyDataObject) => {
                     expect(savedObject.uid).to.equal("4");
                     expect(savedObject.displayName).to.equal("Sensor Test");
@@ -238,19 +240,22 @@ describe('data object', () => {
                     object.count = 2;
                     var frame = new DataFrame();
                     frame.source = object;
-                    model.push(frame).then(_ => {
 
+                    model.onceCompleted(frame.uid).then(() => {
+                        // Check if it is stored
                         objectDataService.findByUID("4").then((savedObject: DummyDataObject) => {
                             expect(savedObject.uid).to.equal("4");
                             expect(savedObject.displayName).to.equal("Sensor Test");
                             expect(savedObject.count).to.equal(2);
                             done();
                         });
-
-                    });
-
+                    }).catch(done);
+        
+                    model.push(frame);
                 });
-            });
+            }).catch(done);
+
+            model.push(frame);
         });
 
         it('should store unknown data objects at the output layer', (done) => {
@@ -258,7 +263,8 @@ describe('data object', () => {
             object.displayName = "Testabc";
             var frame = new DataFrame();
             frame.addObject(object);
-            model.push(frame).then(() => {
+
+            model.onceCompleted(frame.uid).then(() => {
                 // Check if it is stored
                 objectDataService.findAll().then(objects => {
                     expect(objects[objects.length - 1].displayName).to.equal("Testabc");
@@ -266,9 +272,9 @@ describe('data object', () => {
                 }).catch(ex => {
                     done(ex);
                 });
-            }).catch(ex => {
-                done(ex);
-            });
+            }).catch(done);
+
+            model.push(frame);
         });
 
     });

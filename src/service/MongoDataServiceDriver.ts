@@ -2,6 +2,34 @@ import { DataSerializer, DataServiceDriver, FilterQuery } from '@openhps/core';
 import { MongoClient, Db, Collection, IndexSpecification } from 'mongodb';
 import { DatabaseOptions } from './DatabaseOptions';
 
+/**
+ * Data service driver for MongoDB
+ *
+ * ### Usage
+ * You can use a ```MongoDataServiceDriver``` in a data service such as a ```DataObjectService``` to
+ * use the driver to store data objects of a specific type.
+ *
+ * ```typescript
+ * import { ModelBuilder, DataObjectService, DataObject, ReferenceSpace } from '@openhps/core';
+ * import { MongoDataServiceDriver } from '@openhps/mongodb';
+ *
+ * ModelBuilder.create()
+ *     .addService(new DataObjectService(new MongoDataServiceDriver(DataObject, {
+ *         dbURL: "mongodb://mongo:27017",
+ *         dbName: "myobjects"
+ *     })))
+ *     .addService(new DataObjectService(new MongoDataServiceDriver(ReferenceSpace, {
+ *         dbURL: "mongodb://mongo:27017",
+ *         dbName: "myspaces"
+ *     })))
+ *     .addShape(\/* ... *\/)
+ *     .build().then(model => {
+ *         \/* ... *\/
+ *     });
+ * ```
+ *
+ * @category Service
+ */
 export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     private _options: DatabaseOptions;
     private _db: Db;
