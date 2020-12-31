@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        UID = "${env.UID}"
-        GID = "${env.GID}"
+        UID = sh(script: "id -u ${USER}", returnStdout: true).trim()
+        GID = sh(script: "id -u ${USER}", returnStdout: true).trim()
     } 
     stages {
         stage('Build') {
