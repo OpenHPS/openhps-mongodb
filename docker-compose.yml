@@ -2,6 +2,7 @@ version: "2"
 services:
   app:
     build: .
+    user: $UID:$GID
     volumes:
     - ./artifacts:/usr/src/app/artifacts
     depends_on:
