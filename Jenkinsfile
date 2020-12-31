@@ -26,6 +26,8 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing ...'
+                sh 'export UID=$(id -u)'
+                sh 'export GID=$(id -g)'
                 sh 'npm run test:jenkins:docker'
                 sh "docker-compose down"
             }
