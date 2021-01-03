@@ -31,6 +31,8 @@ pipeline {
             steps {
                 echo 'Testing ...'
                 sh 'mkdir artifacts'
+                sh 'mkdir .nyc_output'
+                sh 'mkdir coverage'
                 sh 'npm run test:jenkins:docker'
                 sh "docker-compose down"
             }
