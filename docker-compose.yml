@@ -2,8 +2,9 @@ version: "2"
 services:
   app:
     build: .
+    user: $UID:$GID
     volumes:
-    - ./artifacts:/opt/app/artifacts
+    - ./:/opt/app
     depends_on:
     - mongo
   mongo:

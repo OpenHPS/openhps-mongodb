@@ -30,7 +30,6 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing ...'
-                sh 'mkdir artifacts'
                 sh 'npm run test:jenkins:docker'
                 sh "docker-compose down"
             }
@@ -77,6 +76,7 @@ pipeline {
                 reportFiles: '*.*',
                 reportName: "Documentation"
             ])
+            deleteDir()
         }
     }
 }
