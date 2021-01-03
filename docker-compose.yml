@@ -4,7 +4,7 @@ services:
     build: .
     user: $UID:$GID
     volumes:
-    - ./artifacts:/usr/src/app/artifacts
+    - ./artifacts:/opt/app/artifacts
     depends_on:
     - mongo
   mongo:
