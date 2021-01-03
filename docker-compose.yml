@@ -2,11 +2,8 @@ version: "2"
 services:
   app:
     build: .
-    user: $UID:$GID
     volumes:
     - ./artifacts:/opt/app/artifacts
-    - ./.nyc_output:/opt/app/.nyc_output
-    - ./coverage:/opt/app/coverage
     depends_on:
     - mongo
   mongo:
