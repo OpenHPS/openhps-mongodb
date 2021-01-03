@@ -26,7 +26,7 @@
   "scripts": {
     "test": "mocha --experimental-worker",
     "test:docker": "docker-compose run --entrypoint 'npm run test' app",
-    "test:jenkins": "jenkins-mocha --cobertura",
+    "test:jenkins": "SPAWN_WRAP_SHIM_ROOT=. jenkins-mocha --cobertura",
     "test:jenkins:docker": "docker-compose run --entrypoint 'npm run test:jenkins' app",
     "cover": "nyc mocha && nyc report --reporter=cobertura",
     "lint": "eslint src/**",
