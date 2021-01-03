@@ -1,5 +1,5 @@
 import { DataSerializer, DataServiceDriver, FilterQuery } from '@openhps/core';
-import { MongoClient, Db, Collection, IndexSpecification } from 'mongodb';
+import { MongoClient, Db, Collection } from 'mongodb';
 import { DatabaseOptions } from './DatabaseOptions';
 
 /**
@@ -70,9 +70,9 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public createIndexes(indexes: IndexSpecification[]): Promise<void> {
+    public createIndex(index: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            this._collection.createIndexes(indexes, (err: any) => {
+            this._collection.createIndex(index, (err: any) => {
                 if (err) {
                     return reject(err);
                 }

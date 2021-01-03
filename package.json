@@ -48,12 +48,12 @@
     "mongodb": "^3.6.3"
   },
   "peerDependencies": {
-    "@openhps/core": ">=0.2.0-alpha.3"
+    "@openhps/core": ">=0.2.0-alpha.17"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "@openhps/core": ">=0.2.0-alpha.11",
+    "@openhps/core": ">=0.2.0-alpha.17",
     "@types/chai": "^4.2.14",
     "@types/mocha": "^5.2.7",
     "@types/mongodb": "^3.6.3",
