@@ -31,14 +31,15 @@ import { DatabaseOptions } from './DatabaseOptions';
  * @category Service
  */
 export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
-    private _options: DatabaseOptions;
+    protected options: DatabaseOptions;
     private _db: Db;
     private _client: MongoClient;
     private _collection: Collection<any>;
 
     constructor(dataType: new () => T, options: DatabaseOptions) {
         super((dataType as unknown) as new () => T);
-        this._options = options;
+        this.options = options;
+        this.options.collectionName = this.options.collectionName || this.name.toLowerCase();
 
         this.once('build', this.connect.bind(this));
         this.once('destroy', this.disconnect.bind(this));
@@ -50,7 +51,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         }
         return new Promise((resolve, reject) => {
             MongoClient.connect(
-                this._options.dbURL,
+                this.options.dbURL,
                 {
                     useUnifiedTopology: true,
                     useNewUrlParser: true,
@@ -61,9 +62,9 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                     }
 
                     this._client = client;
-                    this._db = client.db(this._options.dbName);
+                    this._db = client.db(this.options.dbName);
 
-                    this._collection = this._db.collection(this.name.toLowerCase());
+                    this._collection = this._db.collection(this.options.collectionName);
                     resolve();
                 },
             );
@@ -138,10 +139,8 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                     const preparedObject = DataSerializer.serialize(object);
                     preparedObject._id = id;
                     if (existingObject === null) {
-                        this._collection.insertOne(preparedObject, (err: any) => {
-                            if (err !== null) {
-                                return reject(err);
-                            }
+                        this._collection.insertOne(preparedObject, () => {
+                            // Ignore insert error - possible race condition
                             resolve(object);
                         });
                     } else {

@@ -12,4 +12,8 @@ export interface DatabaseOptions {
      * Database name
      */
     dbName: string;
+    /**
+     * Collection name
+     */
+    collectionName?: string;
 }

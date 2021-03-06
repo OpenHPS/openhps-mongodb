@@ -18,7 +18,7 @@
 </p>
 
 <h3 align="center">
-    <a href="https://openhps.org/docs/getting-started">Documentation</a> &mdash; <a href="https://openhps.org/docs/examples">Examples</a> &mdash; <a href="https://openhps.org/docs/core">API</a>
+    <a href="https://github.com/OpenHPS/openhps-core">@openhps/core</a> &mdash; <a href="https://openhps.org/docs/mongodb">API</a>
 </h3>
 
 <br />
@@ -47,11 +47,12 @@ import { MongoDataServiceDriver } from '@openhps/mongodb';
 ModelBuilder.create()
     .addService(new DataObjectService(new MongoDataServiceDriver(DataObject, {
         dbURL: "mongodb://mongo:27017",
-        dbName: "myobjects"
+        dbName: "myObjects"
     })))
     .addService(new DataObjectService(new MongoDataServiceDriver(ReferenceSpace, {
         dbURL: "mongodb://mongo:27017",
-        dbName: "myspaces"
+        dbName: "mySpaces",
+        collectionName: "referenceSpaces"
     })))
     .addShape(/* ... */)
     .build().then(model => {
