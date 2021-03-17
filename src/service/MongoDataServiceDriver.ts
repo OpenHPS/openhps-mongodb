@@ -1,4 +1,4 @@
-import { DataSerializer, DataServiceDriver, FilterQuery } from '@openhps/core';
+import { DataSerializer, DataServiceDriver, FilterQuery, FindOptions } from '@openhps/core';
 import { MongoClient, Db, Collection } from 'mongodb';
 import { DatabaseOptions } from './DatabaseOptions';
 
@@ -93,13 +93,13 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         return this.findOne({ _id: id });
     }
 
-    public findOne(query?: FilterQuery<T>): Promise<T> {
+    public findOne(query?: FilterQuery<T>, options?: FindOptions): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             if (this._collection === undefined) {
                 return reject(new Error(`MongoDB connection not ready!`));
             }
             this._collection
-                .findOne(query)
+                .findOne(query, options)
                 .then((serializedObject) => {
                     if (serializedObject === null) {
                         return reject(`${this.dataType.name} not found!`);
@@ -110,12 +110,12 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public findAll(query?: FilterQuery<T>): Promise<T[]> {
+    public findAll(query?: FilterQuery<T>, options?: FindOptions): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
             if (this._collection === undefined) {
                 return reject(new Error(`MongoDB connection not ready!`));
             }
-            this._collection.find(query).toArray((err: any, result: any) => {
+            this._collection.find(query, options).toArray((err: any, result: any) => {
                 if (err !== null) {
                     return reject(err);
                 }
@@ -155,6 +155,15 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 .catch((ex) => {
                     reject(ex);
                 });
+        });
+    }
+
+    public count(query?: FilterQuery<T>): Promise<number> {
+        return new Promise((resolve, reject) => {
+            if (this._collection === undefined) {
+                return reject(new Error(`MongoDB connection not ready!`));
+            }
+            this._collection.count(query).then(resolve).catch(reject);
         });
     }
 
