@@ -1,9 +1,11 @@
+import { MongoClientOptions } from 'mongodb';
+
 /**
  * Database connection options
  *
  * @category Service
  */
-export interface DatabaseOptions {
+export interface DatabaseOptions extends MongoClientOptions {
     /**
      * Database URL
      */

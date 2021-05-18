@@ -37,7 +37,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     private _collection: Collection<any>;
 
     constructor(dataType: new () => T, options: DatabaseOptions) {
-        super((dataType as unknown) as new () => T);
+        super(dataType as unknown as new () => T);
         this.options = options;
         this.options.collectionName = this.options.collectionName || this.name.toLowerCase();
 
@@ -55,6 +55,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 {
                     useUnifiedTopology: true,
                     useNewUrlParser: true,
+                    auth: this.options.auth,
                 },
                 (err: any, client: MongoClient) => {
                     if (err !== null) {
@@ -65,20 +66,33 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                     this._db = client.db(this.options.dbName);
 
                     this._collection = this._db.collection(this.options.collectionName);
-                    resolve();
+                    const indexes: Array<Promise<void>> = Array.from(
+                        DataSerializer.findRootMetaInfo(this.dataType).dataMembers.values(),
+                    )
+                        .filter((dataMember: any) => dataMember.index)
+                        .map(this.createIndex.bind(this));
+                    Promise.all(indexes)
+                        .then(() => resolve())
+                        .catch(reject);
                 },
             );
         });
     }
 
-    public createIndex(index: string): Promise<void> {
+    public createIndex(dataMember: any): Promise<void> {
         return new Promise((resolve, reject) => {
-            this._collection.createIndex(index, (err: any) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
+            this._collection.createIndex(
+                dataMember.key,
+                {
+                    unique: dataMember.unique,
+                },
+                (err: any) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                },
+            );
         });
     }
 
