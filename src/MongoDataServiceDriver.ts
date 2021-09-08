@@ -56,7 +56,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                     auth: this.options.auth,
                 },
                 (err: any, client: MongoClient) => {
-                    if (err !== null) {
+                    if (err) {
                         return reject(err);
                     }
 
@@ -113,7 +113,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             this._collection
                 .findOne(query, options)
                 .then((serializedObject) => {
-                    if (serializedObject === null) {
+                    if (!serializedObject) {
                         return reject(`${this.dataType.name} not found!`);
                     }
                     resolve(DataSerializer.deserialize(serializedObject, this.dataType as any));
@@ -128,7 +128,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 return reject(new Error(`MongoDB connection not ready!`));
             }
             this._collection.find(query, options).toArray((err: any, result: any) => {
-                if (err !== null) {
+                if (err) {
                     return reject(err);
                 }
                 const deserializedResults: any[] = [];
@@ -150,14 +150,14 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 .then((existingObject) => {
                     const preparedObject = DataSerializer.serialize(object);
                     preparedObject._id = id;
-                    if (existingObject === null) {
+                    if (!existingObject) {
                         this._collection.insertOne(preparedObject, () => {
                             // Ignore insert error - possible race condition
                             resolve(object);
                         });
                     } else {
                         this._collection.updateOne({ _id: id }, { $set: preparedObject }, (err: any) => {
-                            if (err !== null) {
+                            if (err) {
                                 return reject(err);
                             }
                             resolve(object);
