@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          npm install
+          npm run build:cjs
+          npm run build:esm
+          npm run build:docker
+      - name: Quality
+        run: |
+          npm run lint
+      - name: Documentation
+        run: |
+          npm run build:typedoc
+      - name: Test
+        run: |
+          npm run test:docker
+          npm run cover:docker

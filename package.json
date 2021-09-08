@@ -29,6 +29,7 @@
     "test:jenkins": "SPAWN_WRAP_SHIM_ROOT=. jenkins-mocha --cobertura",
     "test:jenkins:docker": "docker-compose run --entrypoint 'npm run test:jenkins' app",
     "cover": "nyc mocha && nyc report --reporter=cobertura",
+    "cover:docker": "docker-compose run --entrypoint 'nyc mocha && nyc report --reporter=cobertura' app",
     "lint": "eslint src/**",
     "clean": "shx rm -rf ./dist && shx rm -rf ./docs/out",
     "build": "npm run clean && npm-run-all --parallel build:esm build:cjs build:typedoc && npm run build:docker",
@@ -45,7 +46,7 @@
     "mongodb"
   ],
   "dependencies": {
-    "mongodb": "^3.6.7"
+    "mongodb": "^4.1.1"
   },
   "peerDependencies": {
     "@openhps/core": "dev"
@@ -53,10 +54,9 @@
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "@openhps/core": "^0.3.0-alpha.56",
+    "@openhps/core": "^0.3.0-alpha.73",
     "@types/chai": "^4.2.18",
     "@types/mocha": "^5.2.7",
-    "@types/mongodb": "^3.6.13",
     "@types/node": "^12.20.13",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",

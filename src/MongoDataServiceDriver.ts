@@ -53,8 +53,6 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             MongoClient.connect(
                 this.options.dbURL,
                 {
-                    useUnifiedTopology: true,
-                    useNewUrlParser: true,
                     auth: this.options.auth,
                 },
                 (err: any, client: MongoClient) => {
