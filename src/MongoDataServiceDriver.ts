@@ -82,7 +82,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             this._collection.createIndex(
                 dataMember.key,
                 {
-                    unique: dataMember.unique,
+                    unique: dataMember.unique ? true : false,
                 },
                 (err: any) => {
                     if (err) {
