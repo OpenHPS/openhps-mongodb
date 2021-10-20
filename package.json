@@ -1,6 +1,6 @@
 {
   "name": "@openhps/mongodb",
-  "version": "0.1.0-alpha.177",
+  "version": "0.1.0-alpha.178",
   "description": "Open Hybrid Positioning System - MongoDB Database component",
   "author": "Maxim Van de Wynckel",
   "license": "Apache-2.0",
