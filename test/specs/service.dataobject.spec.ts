@@ -16,7 +16,7 @@ describe('DataObjectService', () => {
 
         objectDataService.emitAsync("build").then(() => {
             objectDataService.deleteAll().then(_ => {
-                const object1 = new DataObject();
+                const object1 = new DataObject("1");
                 object1.setPosition(new Absolute2DPosition(5, 6));
                 object1.displayName = 'Test';
                 object1.createdTimestamp = Date.parse('10 Mar 1995 00:00:00 GMT');
@@ -52,6 +52,34 @@ describe('DataObjectService', () => {
         objectDataService.emitAsync("destroy").then(() => {
             done();
         });
+    });
+
+    it('should support updating an object', (done) => {
+        objectDataService.findByUID("1").then(obj => {
+            obj.displayName = "Test-updated";
+            return objectDataService.insert("1", obj);
+        }).then(() => {
+            return objectDataService.findByUID("1");
+        }).then(obj => {
+            expect(obj.displayName).to.equal("Test-updated");
+            done();
+        }).catch(done);
+    });
+
+    it('should support counting all objects', (done) => {
+        objectDataService.count().then(val => {
+            expect(val).to.equal(3);
+            done();
+        }).catch(done);
+    });
+
+    it('should support counting filtered objects', (done) => {
+        objectDataService.count({
+            displayName: "Maxim"
+        }).then(val => {
+            expect(val).to.equal(1);
+            done();
+        }).catch(done);
     });
 
     it('should support sorting in descending order', (done) => {
@@ -118,7 +146,7 @@ describe('DataObjectService', () => {
                 const location = objects[0].getPosition() as Absolute2DPosition;
                 expect(location.x).to.equal(5);
                 expect(location.y).to.equal(6);
-                expect(objects[0].displayName).to.equal('Test');
+                expect(objects[0].displayName).to.equal('Test-updated');
                 done();
             })
             .catch((ex) => {
@@ -177,6 +205,12 @@ describe('DataObjectService', () => {
     it('should find by display name', () => {
         objectDataService.findByDisplayName('Test').then((objects) => {
             expect(objects.length).to.equal(3);
+        });
+    });
+
+    it('should delete one object', (done) => {
+        objectDataService.delete("1").then(() => {
+            done();
         });
     });
 
