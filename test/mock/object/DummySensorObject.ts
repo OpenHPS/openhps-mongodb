@@ -1,7 +1,7 @@
-import { DataObject, SerializableObject, SensorObject, AngleUnit } from '@openhps/core';
+import { DataObject, SerializableObject, AngleUnit } from '@openhps/core';
 
 @SerializableObject()
-export class DummySensorObject extends DataObject implements SensorObject {
+export class DummySensorObject extends DataObject {
     public horizontalFOV: number;
     public verticalFOV: number;
     public fovUnit: AngleUnit;
