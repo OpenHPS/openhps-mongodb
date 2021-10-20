@@ -54,6 +54,67 @@ describe('DataObjectService', () => {
         });
     });
 
+    describe('not connected', () => {
+        let objectDataService: DataObjectService<DataObject>;
+
+        before(() => {
+            objectDataService = new DataObjectService(new MongoDataServiceDriver(DataObject, {
+                dbURL: "mongodb://mongo:27017",
+                dbName: "test"
+            }));
+        });
+
+        it('should throw an error on findAll', (done) => {
+            objectDataService.findAll().then(() => {
+                done(new Error('No error thrown!'));
+            }).catch(() => {
+                done();
+            });
+        });
+
+        it('should throw an error on findOne', (done) => {
+            objectDataService.findOne().then(() => {
+                done(new Error('No error thrown!'));
+            }).catch(() => {
+                done();
+            });
+        });
+
+        it('should throw an error on insert', (done) => {
+            objectDataService.insert(undefined, undefined).then(() => {
+                done(new Error('No error thrown!'));
+            }).catch(() => {
+                done();
+            });
+        });
+
+        it('should throw an error on count', (done) => {
+            objectDataService.count().then(() => {
+                done(new Error('No error thrown!'));
+            }).catch(() => {
+                done();
+            });
+        });
+
+        it('should throw an error on delete', (done) => {
+            objectDataService.delete(undefined).then(() => {
+                done(new Error('No error thrown!'));
+            }).catch(() => {
+                done();
+            });
+        });
+
+        it('should throw an error on deleteAll', (done) => {
+            objectDataService.deleteAll().then(() => {
+                done(new Error('No error thrown!'));
+            }).catch(() => {
+                done();
+            });
+        });
+
+    });
+
+
     it('should support updating an object', (done) => {
         objectDataService.findByUID("1").then(obj => {
             obj.displayName = "Test-updated";
