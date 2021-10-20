@@ -1,3 +1,4 @@
+import { DataServiceOptions } from '@openhps/core';
 import { MongoClientOptions } from 'mongodb';
 
 /**
@@ -5,7 +6,7 @@ import { MongoClientOptions } from 'mongodb';
  *
  * @category Service
  */
-export interface DatabaseOptions extends MongoClientOptions {
+export interface DatabaseOptions extends MongoClientOptions, DataServiceOptions {
     /**
      * Database URL
      */

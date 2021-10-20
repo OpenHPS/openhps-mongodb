@@ -1,4 +1,4 @@
-import { DataSerializer, DataServiceDriver, FilterQuery, FindOptions } from '@openhps/core';
+import { DataSerializer, DataServiceDriver, FilterQuery, FindOptions, Constructor } from '@openhps/core';
 import { MongoClient, Db, Collection } from 'mongodb';
 import { DatabaseOptions } from './DatabaseOptions';
 
@@ -36,10 +36,10 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     private _client: MongoClient;
     private _collection: Collection<any>;
 
-    constructor(dataType: new () => T, options: DatabaseOptions) {
-        super(dataType as unknown as new () => T);
+    constructor(dataType: Constructor<T>, options: DatabaseOptions) {
+        super(dataType);
         this.options = options;
-        this.options.collectionName = this.options.collectionName || this.name.toLowerCase();
+        this.options.collectionName = this.options.collectionName || this.uid.toLowerCase();
 
         this.once('build', this.connect.bind(this));
         this.once('destroy', this.disconnect.bind(this));
