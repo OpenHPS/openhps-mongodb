@@ -41,10 +41,8 @@ describe('DataObjectService', () => {
                     .then(() => {
                         done();
                     })
-                    .catch((ex) => {
-                        done(ex);
-                    });
-            });
+                    .catch(done);
+            }).catch(done);
         });
     });
 

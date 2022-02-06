@@ -65,7 +65,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
                     this._collection = this._db.collection(this.options.collectionName);
                     const indexes: Array<Promise<void>> = Array.from(
-                        DataSerializer.findRootMetaInfo(this.dataType).dataMembers.values(),
+                        DataSerializer.getRootMetadata(this.dataType).dataMembers.values(),
                     )
                         .filter((dataMember: any) => dataMember.index)
                         .map(this.createIndex.bind(this));
