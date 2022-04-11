@@ -45,6 +45,11 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         this.once('destroy', this.disconnect.bind(this));
     }
 
+    /**
+     * Connect to the MongoDB service
+     *
+     * @returns {Promise<void>} Promise of connection
+     */
     public connect(): Promise<void> {
         if (this._client !== undefined) {
             return Promise.resolve();
@@ -102,19 +107,26 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     }
 
     public findByUID(id: I): Promise<T> {
-        return this.findOne({ _id: id });
+        return new Promise((resolve, reject) => {
+            this.findOne({ _id: id })
+                .then((object) => {
+                    if (object === undefined) {
+                        return reject(`${this.dataType.name} with identifier #${id} not found!`);
+                    }
+                    resolve(object);
+                })
+                .catch(reject);
+        });
     }
 
     public findOne(query?: FilterQuery<T>, options?: FindOptions): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            if (this._collection === undefined) {
-                return reject(new Error(`MongoDB connection not ready!`));
-            }
+            this._checkIfReady(reject);
             this._collection
                 .findOne(query, options)
                 .then((serializedObject) => {
                     if (!serializedObject) {
-                        return reject(`${this.dataType.name} not found!`);
+                        return resolve(undefined);
                     }
                     resolve(DataSerializer.deserialize(serializedObject, this.dataType as any));
                 })
@@ -124,9 +136,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     public findAll(query?: FilterQuery<T>, options?: FindOptions): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
-            if (this._collection === undefined) {
-                return reject(new Error(`MongoDB connection not ready!`));
-            }
+            this._checkIfReady(reject);
             this._collection.find(query, options).toArray((err: any, result: any) => {
                 if (err) {
                     return reject(err);
@@ -142,9 +152,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     public insert(id: I, object: T): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            if (this._collection === undefined) {
-                return reject(new Error(`MongoDB connection not ready!`));
-            }
+            this._checkIfReady(reject);
             this._collection
                 .findOne({ _id: id })
                 .then((existingObject) => {
@@ -172,18 +180,14 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     public count(query?: FilterQuery<T>): Promise<number> {
         return new Promise((resolve, reject) => {
-            if (this._collection === undefined) {
-                return reject(new Error(`MongoDB connection not ready!`));
-            }
+            this._checkIfReady(reject);
             this._collection.count(query).then(resolve).catch(reject);
         });
     }
 
     public delete(id: I): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            if (this._collection === undefined) {
-                return reject(new Error(`MongoDB connection not ready!`));
-            }
+            this._checkIfReady(reject);
             this._collection
                 .deleteOne({ _id: id })
                 .then(() => {
@@ -195,9 +199,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     public deleteAll(query?: FilterQuery<T>): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            if (this._collection === undefined) {
-                return reject(new Error(`MongoDB connection not ready!`));
-            }
+            this._checkIfReady(reject);
             this._collection
                 .deleteMany(query)
                 .then(() => {
@@ -205,5 +207,11 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 })
                 .catch(reject);
         });
+    }
+
+    private _checkIfReady(reject: (reason: any) => void): void {
+        if (this._collection === undefined) {
+            return reject(new Error(`MongoDB connection not ready!`));
+        }
     }
 }
