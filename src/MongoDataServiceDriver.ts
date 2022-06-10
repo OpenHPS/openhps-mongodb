@@ -1,4 +1,11 @@
-import { DataSerializer, DataServiceDriver, FilterQuery, FindOptions, Constructor } from '@openhps/core';
+import {
+    DataSerializer,
+    DataServiceDriver,
+    FilterQuery,
+    FindOptions,
+    Constructor,
+    DataSerializerUtils,
+} from '@openhps/core';
 import { MongoClient, Db, Collection } from 'mongodb';
 import { DatabaseOptions } from './DatabaseOptions';
 
@@ -50,7 +57,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
      *
      * @returns {Promise<void>} Promise of connection
      */
-    public connect(): Promise<void> {
+    connect(): Promise<void> {
         if (this._client !== undefined) {
             return Promise.resolve();
         }
@@ -70,7 +77,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
                     this._collection = this._db.collection(this.options.collectionName);
                     const indexes: Array<Promise<void>> = Array.from(
-                        DataSerializer.getRootMetadata(this.dataType).dataMembers.values(),
+                        DataSerializerUtils.getRootMetadata(this.dataType).dataMembers.values(),
                     )
                         .filter((dataMember: any) => dataMember.index)
                         .map(this.createIndex.bind(this));
@@ -82,7 +89,13 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public createIndex(dataMember: any): Promise<void> {
+    /**
+     * Create a new index
+     *
+     * @param {any} dataMember Data member to create index for
+     * @returns {Promise<void>} Index created promise
+     */
+    createIndex(dataMember: any): Promise<void> {
         return new Promise((resolve, reject) => {
             this._collection.createIndex(
                 dataMember.key,
@@ -99,14 +112,19 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public disconnect(): Promise<void> {
+    /**
+     * Disconnect from the MongoDB database
+     *
+     * @returns {Promise<void>} Promise of disconnect
+     */
+    disconnect(): Promise<void> {
         if (this._client === undefined) {
             return Promise.resolve();
         }
         return this._client.close();
     }
 
-    public findByUID(id: I): Promise<T> {
+    findByUID(id: I): Promise<T> {
         return new Promise((resolve, reject) => {
             this.findOne({ _id: id })
                 .then((object) => {
@@ -119,7 +137,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public findOne(query?: FilterQuery<T>, options?: FindOptions): Promise<T> {
+    findOne(query?: FilterQuery<T>, options?: FindOptions): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             this._checkIfReady(reject);
             this._collection
@@ -134,7 +152,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public findAll(query?: FilterQuery<T>, options?: FindOptions): Promise<T[]> {
+    findAll(query?: FilterQuery<T>, options?: FindOptions): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
             this._checkIfReady(reject);
             this._collection.find(query, options).toArray((err: any, result: any) => {
@@ -150,7 +168,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public insert(id: I, object: T): Promise<T> {
+    insert(id: I, object: T): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             this._checkIfReady(reject);
             this._collection
@@ -178,14 +196,14 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public count(query?: FilterQuery<T>): Promise<number> {
+    count(query?: FilterQuery<T>): Promise<number> {
         return new Promise((resolve, reject) => {
             this._checkIfReady(reject);
             this._collection.count(query).then(resolve).catch(reject);
         });
     }
 
-    public delete(id: I): Promise<void> {
+    delete(id: I): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this._checkIfReady(reject);
             this._collection
@@ -197,7 +215,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         });
     }
 
-    public deleteAll(query?: FilterQuery<T>): Promise<void> {
+    deleteAll(query?: FilterQuery<T>): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this._checkIfReady(reject);
             this._collection
@@ -211,7 +229,10 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     private _checkIfReady(reject: (reason: any) => void): void {
         if (this._collection === undefined) {
-            return reject(new Error(`MongoDB connection not ready!`));
+            return reject(
+                new Error(`MongoDB connection not ready! Most likely the service was accessed before
+                the connection was completed.`),
+            );
         }
     }
 }
