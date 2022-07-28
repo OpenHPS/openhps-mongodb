@@ -82,7 +82,7 @@ jobs:
           key: ${{ runner.os }}-test-v1-${{ hashFiles('**/package-lock.json') }}-${{ github.run_number }}
       - name: Test
         run: |
-          npm run cover:ci
+          npm run cover:ci:docker
 
   documentation:
     name: Build documentation
