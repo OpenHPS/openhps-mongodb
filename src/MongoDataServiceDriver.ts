@@ -66,12 +66,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 this.options.dbURL,
                 {
                     auth: this.options.auth,
-                },
-                (err: any, client: MongoClient) => {
-                    if (err) {
-                        return reject(err);
-                    }
-
+                }).then((client: MongoClient) => {
                     this._client = client;
                     this._db = client.db(this.options.dbName);
 
@@ -81,11 +76,8 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                     )
                         .filter((dataMember: any) => dataMember.index)
                         .map(this.createIndex.bind(this));
-                    Promise.all(indexes)
-                        .then(() => resolve())
-                        .catch(reject);
-                },
-            );
+                    return Promise.all(indexes);
+                }).then(() => resolve()).catch(reject);
         });
     }
 
@@ -101,14 +93,9 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                 dataMember.key,
                 {
                     unique: dataMember.unique ? true : false,
-                },
-                (err: any) => {
-                    if (err) {
-                        return reject(err);
-                    }
+                }).then(() => {
                     resolve();
-                },
-            );
+                }).catch(reject);
         });
     }
 
@@ -177,17 +164,16 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                     const preparedObject = DataSerializer.serialize(object);
                     preparedObject._id = id;
                     if (!existingObject) {
-                        this._collection.insertOne(preparedObject, () => {
+                        this._collection.insertOne(preparedObject).then(() => {
+                            resolve(object);
+                        }).catch(() => {
                             // Ignore insert error - possible race condition
                             resolve(object);
                         });
                     } else {
-                        this._collection.updateOne({ _id: id }, { $set: preparedObject }, (err: any) => {
-                            if (err) {
-                                return reject(err);
-                            }
+                        this._collection.updateOne({ _id: id }, { $set: preparedObject }).then(() => {
                             resolve(object);
-                        });
+                        }).catch(reject);
                     }
                 })
                 .catch((ex) => {
