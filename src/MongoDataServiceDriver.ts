@@ -62,11 +62,10 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             return Promise.resolve();
         }
         return new Promise((resolve, reject) => {
-            MongoClient.connect(
-                this.options.dbURL,
-                {
-                    auth: this.options.auth,
-                }).then((client: MongoClient) => {
+            MongoClient.connect(this.options.dbURL, {
+                auth: this.options.auth,
+            })
+                .then((client: MongoClient) => {
                     this._client = client;
                     this._db = client.db(this.options.dbName);
 
@@ -77,7 +76,9 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                         .filter((dataMember: any) => dataMember.index)
                         .map(this.createIndex.bind(this));
                     return Promise.all(indexes);
-                }).then(() => resolve()).catch(reject);
+                })
+                .then(() => resolve())
+                .catch(reject);
         });
     }
 
@@ -89,13 +90,14 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
      */
     createIndex(dataMember: any): Promise<void> {
         return new Promise((resolve, reject) => {
-            this._collection.createIndex(
-                dataMember.key,
-                {
+            this._collection
+                .createIndex(dataMember.key, {
                     unique: dataMember.unique ? true : false,
-                }).then(() => {
+                })
+                .then(() => {
                     resolve();
-                }).catch(reject);
+                })
+                .catch(reject);
         });
     }
 
@@ -142,16 +144,17 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     findAll(query?: FilterQuery<T>, options?: FindOptions): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
             this._checkIfReady(reject);
-            this._collection.find(query, options).toArray((err: any, result: any) => {
-                if (err) {
-                    return reject(err);
-                }
-                const deserializedResults: any[] = [];
-                result.forEach((r: any) => {
-                    deserializedResults.push(DataSerializer.deserialize(r, this.dataType as any));
-                });
-                resolve(deserializedResults);
-            });
+            this._collection
+                .find(query, options)
+                .toArray()
+                .then((result: any) => {
+                    const deserializedResults: any[] = [];
+                    result.forEach((r: any) => {
+                        deserializedResults.push(DataSerializer.deserialize(r, this.dataType as any));
+                    });
+                    resolve(deserializedResults);
+                })
+                .catch(reject);
         });
     }
 
@@ -164,16 +167,22 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                     const preparedObject = DataSerializer.serialize(object);
                     preparedObject._id = id;
                     if (!existingObject) {
-                        this._collection.insertOne(preparedObject).then(() => {
-                            resolve(object);
-                        }).catch(() => {
-                            // Ignore insert error - possible race condition
-                            resolve(object);
-                        });
+                        this._collection
+                            .insertOne(preparedObject)
+                            .then(() => {
+                                resolve(object);
+                            })
+                            .catch(() => {
+                                // Ignore insert error - possible race condition
+                                resolve(object);
+                            });
                     } else {
-                        this._collection.updateOne({ _id: id }, { $set: preparedObject }).then(() => {
-                            resolve(object);
-                        }).catch(reject);
+                        this._collection
+                            .updateOne({ _id: id }, { $set: preparedObject })
+                            .then(() => {
+                                resolve(object);
+                            })
+                            .catch(reject);
                     }
                 })
                 .catch((ex) => {
