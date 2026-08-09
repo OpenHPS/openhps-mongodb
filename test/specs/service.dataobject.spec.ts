@@ -1,4 +1,17 @@
-import { Model, ModelBuilder, DataFrame, LoggingSinkNode, DataObject, DataObjectService, Absolute2DPosition, Absolute3DPosition, CallbackSourceNode, CallbackSinkNode, CallbackNode } from '@openhps/core';
+import { MONGO_URL } from '../mongoUrl';
+import {
+    Model,
+    ModelBuilder,
+    DataFrame,
+    LoggingSinkNode,
+    DataObject,
+    DataObjectService,
+    Absolute2DPosition,
+    Absolute3DPosition,
+    CallbackSourceNode,
+    CallbackSinkNode,
+    CallbackNode,
+} from '@openhps/core';
 import { DummySensorObject } from '../mock/object/DummySensorObject';
 
 import { expect } from 'chai';
@@ -9,45 +22,50 @@ describe('DataObjectService', () => {
     let objectDataService: DataObjectService<DataObject>;
 
     before((done) => {
-        objectDataService = new DataObjectService(new MongoDataServiceDriver(DataObject, {
-            dbURL: "mongodb://mongo:27017",
-            dbName: "test"
-        }));
+        objectDataService = new DataObjectService(
+            new MongoDataServiceDriver(DataObject, {
+                dbURL: MONGO_URL,
+                dbName: 'test',
+            }),
+        );
 
-        objectDataService.emitAsync("build").then(() => {
-            objectDataService.deleteAll().then(_ => {
-                const object1 = new DataObject("1");
-                object1.setPosition(new Absolute2DPosition(5, 6));
-                object1.displayName = 'Test';
-                object1.createdTimestamp = Date.parse('10 Mar 1995 00:00:00 GMT');
+        objectDataService.emitAsync('build').then(() => {
+            objectDataService
+                .deleteAll()
+                .then((_) => {
+                    const object1 = new DataObject('1');
+                    object1.setPosition(new Absolute2DPosition(5, 6));
+                    object1.displayName = 'Test';
+                    object1.createdTimestamp = Date.parse('10 Mar 1995 00:00:00 GMT');
 
-                const object2 = new DataObject();
-                object2.setPosition(new Absolute3DPosition(5, 6, 2));
-                object2.displayName = 'Test';
-                object2.parentUID = object1.uid;
-                object2.createdTimestamp = Date.parse('10 Mar 1995 01:00:00 GMT');
+                    const object2 = new DataObject();
+                    object2.setPosition(new Absolute3DPosition(5, 6, 2));
+                    object2.displayName = 'Test';
+                    object2.parentUID = object1.uid;
+                    object2.createdTimestamp = Date.parse('10 Mar 1995 01:00:00 GMT');
 
-                const object3 = new DataObject();
-                object3.setPosition(new Absolute3DPosition(1, 1, 2));
-                object3.displayName = 'Maxim';
-                object3.createdTimestamp = Date.parse('10 Mar 1995 02:00:00 GMT');
+                    const object3 = new DataObject();
+                    object3.setPosition(new Absolute3DPosition(1, 1, 2));
+                    object3.displayName = 'Maxim';
+                    object3.createdTimestamp = Date.parse('10 Mar 1995 02:00:00 GMT');
 
-                const insertPromises = [];
-                insertPromises.push(objectDataService.insert(object1.uid, object1));
-                insertPromises.push(objectDataService.insert(object2.uid, object2));
-                insertPromises.push(objectDataService.insert(object3.uid, object3));
+                    const insertPromises = [];
+                    insertPromises.push(objectDataService.insert(object1.uid, object1));
+                    insertPromises.push(objectDataService.insert(object2.uid, object2));
+                    insertPromises.push(objectDataService.insert(object3.uid, object3));
 
-                Promise.all(insertPromises)
-                    .then(() => {
-                        done();
-                    })
-                    .catch(done);
-            }).catch(done);
+                    Promise.all(insertPromises)
+                        .then(() => {
+                            done();
+                        })
+                        .catch(done);
+                })
+                .catch(done);
         });
     });
 
     after((done) => {
-        objectDataService.emitAsync("destroy").then(() => {
+        objectDataService.emitAsync('destroy').then(() => {
             done();
         });
     });
@@ -56,96 +74,128 @@ describe('DataObjectService', () => {
         let objectDataService: DataObjectService<DataObject>;
 
         before(() => {
-            objectDataService = new DataObjectService(new MongoDataServiceDriver(DataObject, {
-                dbURL: "mongodb://mongo:27017",
-                dbName: "test"
-            }));
+            objectDataService = new DataObjectService(
+                new MongoDataServiceDriver(DataObject, {
+                    dbURL: MONGO_URL,
+                    dbName: 'test',
+                }),
+            );
         });
 
         it('should throw an error on findAll', (done) => {
-            objectDataService.findAll().then(() => {
-                done(new Error('No error thrown!'));
-            }).catch(() => {
-                done();
-            });
+            objectDataService
+                .findAll()
+                .then(() => {
+                    done(new Error('No error thrown!'));
+                })
+                .catch(() => {
+                    done();
+                });
         });
 
         it('should throw an error on findOne', (done) => {
-            objectDataService.findOne().then(() => {
-                done(new Error('No error thrown!'));
-            }).catch(() => {
-                done();
-            });
+            objectDataService
+                .findOne()
+                .then(() => {
+                    done(new Error('No error thrown!'));
+                })
+                .catch(() => {
+                    done();
+                });
         });
 
         it('should throw an error on insert', (done) => {
-            objectDataService.insert(undefined, undefined).then(() => {
-                done(new Error('No error thrown!'));
-            }).catch(() => {
-                done();
-            });
+            objectDataService
+                .insert(undefined, undefined)
+                .then(() => {
+                    done(new Error('No error thrown!'));
+                })
+                .catch(() => {
+                    done();
+                });
         });
 
         it('should throw an error on count', (done) => {
-            objectDataService.count().then(() => {
-                done(new Error('No error thrown!'));
-            }).catch(() => {
-                done();
-            });
+            objectDataService
+                .count()
+                .then(() => {
+                    done(new Error('No error thrown!'));
+                })
+                .catch(() => {
+                    done();
+                });
         });
 
         it('should throw an error on delete', (done) => {
-            objectDataService.delete(undefined).then(() => {
-                done(new Error('No error thrown!'));
-            }).catch(() => {
-                done();
-            });
+            objectDataService
+                .delete(undefined)
+                .then(() => {
+                    done(new Error('No error thrown!'));
+                })
+                .catch(() => {
+                    done();
+                });
         });
 
         it('should throw an error on deleteAll', (done) => {
-            objectDataService.deleteAll().then(() => {
-                done(new Error('No error thrown!'));
-            }).catch(() => {
-                done();
-            });
+            objectDataService
+                .deleteAll()
+                .then(() => {
+                    done(new Error('No error thrown!'));
+                })
+                .catch(() => {
+                    done();
+                });
         });
-
     });
 
-
     it('should support updating an object', (done) => {
-        objectDataService.findByUID("1").then(obj => {
-            obj.displayName = "Test-updated";
-            return objectDataService.insert("1", obj);
-        }).then(() => {
-            return objectDataService.findByUID("1");
-        }).then(obj => {
-            expect(obj.displayName).to.equal("Test-updated");
-            done();
-        }).catch(done);
+        objectDataService
+            .findByUID('1')
+            .then((obj) => {
+                obj.displayName = 'Test-updated';
+                return objectDataService.insert('1', obj);
+            })
+            .then(() => {
+                return objectDataService.findByUID('1');
+            })
+            .then((obj) => {
+                expect(obj.displayName).to.equal('Test-updated');
+                done();
+            })
+            .catch(done);
     });
 
     it('should support counting all objects', (done) => {
-        objectDataService.count().then(val => {
-            expect(val).to.equal(3);
-            done();
-        }).catch(done);
+        objectDataService
+            .count()
+            .then((val) => {
+                expect(val).to.equal(3);
+                done();
+            })
+            .catch(done);
     });
 
     it('should support counting filtered objects', (done) => {
-        objectDataService.count({
-            displayName: "Maxim"
-        }).then(val => {
-            expect(val).to.equal(1);
-            done();
-        }).catch(done);
+        objectDataService
+            .count({
+                displayName: 'Maxim',
+            })
+            .then((val) => {
+                expect(val).to.equal(1);
+                done();
+            })
+            .catch(done);
     });
 
     it('should support sorting in descending order', (done) => {
         objectDataService
-            .findAll({}, {
-                sort: [['createdTimestamp', -1]]
-            })
+            .findAll(
+                {},
+                {
+                    sort: [['createdTimestamp', -1]],
+                },
+            )
             .then((objects) => {
                 expect(objects.length).to.equal(3);
                 expect(objects[0].createdTimestamp).to.equal(794800800000);
@@ -154,14 +204,17 @@ describe('DataObjectService', () => {
             })
             .catch((ex) => {
                 done(ex);
-        });
+            });
     });
 
     it('should support sorting in ascending order', (done) => {
         objectDataService
-            .findAll({}, {
-                sort: [['createdTimestamp', 1]]
-            })
+            .findAll(
+                {},
+                {
+                    sort: [['createdTimestamp', 1]],
+                },
+            )
             .then((objects) => {
                 expect(objects.length).to.equal(3);
                 expect(objects[0].createdTimestamp).to.equal(794793600000);
@@ -170,7 +223,7 @@ describe('DataObjectService', () => {
             })
             .catch((ex) => {
                 done(ex);
-        });
+            });
     });
 
     it('should find data objects before a certain date', (done) => {
@@ -268,7 +321,7 @@ describe('DataObjectService', () => {
     });
 
     it('should delete one object', (done) => {
-        objectDataService.delete("1").then(() => {
+        objectDataService.delete('1').then(() => {
             done();
         });
     });
@@ -416,7 +469,6 @@ describe('DataObjectService', () => {
         });
     });
 
-    
     describe('output node without persistence', () => {
         let model: Model<DataFrame, DataFrame>;
         let objectDataService: DataObjectService<DataObject>;
@@ -424,9 +476,11 @@ describe('DataObjectService', () => {
         before((done) => {
             ModelBuilder.create()
                 .from()
-                .to(new CallbackSinkNode(() => {}, {
-                    persistence: false
-                }))
+                .to(
+                    new CallbackSinkNode(() => {}, {
+                        persistence: false,
+                    }),
+                )
                 .build()
                 .then((m) => {
                     model = m;

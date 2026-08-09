@@ -1,0 +1,19 @@
+# The MongoDB the test suites connect to in CI.
+#
+# The repository's docker-compose.yml runs the whole package inside a container, where
+# the database is reachable as `mongo`. CI runs the tests on the runner itself and only
+# needs the database, so this brings up mongod alone with its port published on the
+# host — hence `mongodb://localhost:27017`, which is what MONGO_URL defaults to.
+#
+# Pinned to 7: the driver is still on 4.x, and the 4 -> 7 driver migration is tracked
+# separately. mongod 7 is within that driver's supported range.
+services:
+    mongo:
+        image: mongo:7
+        ports:
+            - '27017:27017'
+        healthcheck:
+            test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping')"]
+            interval: 5s
+            timeout: 5s
+            retries: 12
