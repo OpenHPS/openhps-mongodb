@@ -3,7 +3,6 @@ import { MongoClientOptions } from 'mongodb';
 
 /**
  * Database connection options
- *
  * @category Service
  */
 export interface DatabaseOptions extends MongoClientOptions, DataServiceOptions {

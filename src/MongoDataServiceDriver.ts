@@ -21,20 +21,19 @@ import { DatabaseOptions } from './DatabaseOptions';
  * import { MongoDataServiceDriver } from '@openhps/mongodb';
  *
  * ModelBuilder.create()
- *     .addService(new DataObjectService(new MongoDataServiceDriver(DataObject, {
- *         dbURL: "mongodb://mongo:27017",
- *         dbName: "myobjects"
- *     })))
- *     .addService(new DataObjectService(new MongoDataServiceDriver(ReferenceSpace, {
- *         dbURL: "mongodb://mongo:27017",
- *         dbName: "myspaces"
- *     })))
- *     .addShape(\/* ... *\/)
- *     .build().then(model => {
- *         \/* ... *\/
- *     });
+ * .addService(new DataObjectService(new MongoDataServiceDriver(DataObject, {
+ * dbURL: "mongodb://mongo:27017",
+ * dbName: "myobjects"
+ * })))
+ * .addService(new DataObjectService(new MongoDataServiceDriver(ReferenceSpace, {
+ * dbURL: "mongodb://mongo:27017",
+ * dbName: "myspaces"
+ * })))
+ * .addShape(\/* ... *\/)
+ * .build().then(model => {
+ * \/* ... *\/
+ * });
  * ```
- *
  * @category Service
  */
 export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
@@ -54,7 +53,6 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     /**
      * Connect to the MongoDB service
-     *
      * @returns {Promise<void>} Promise of connection
      */
     connect(): Promise<void> {
@@ -84,7 +82,6 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     /**
      * Create a new index
-     *
      * @param {any} dataMember Data member to create index for
      * @returns {Promise<void>} Index created promise
      */
@@ -103,7 +100,6 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
 
     /**
      * Disconnect from the MongoDB database
-     *
      * @returns {Promise<void>} Promise of disconnect
      */
     disconnect(): Promise<void> {
