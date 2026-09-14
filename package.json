@@ -59,7 +59,7 @@
         "mongodb"
     ],
     "dependencies": {
-        "mongodb": "^4.17.2",
+        "mongodb": "^7.6.0",
         "tslib": "^2.8.1"
     },
     "peerDependencies": {
