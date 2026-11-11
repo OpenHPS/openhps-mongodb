@@ -146,7 +146,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         const specifications: Record<string, 1 | -1>[] =
             indexes ?? (metaFields.length > 0 ? [{ [`${metaField}.${metaFields[0]}`]: 1, [timeField]: -1 }] : []);
         for (const specification of specifications) {
-            await this._collection.createIndex(specification);
+            await this._collection.createIndex(specification, undefined, undefined);
         }
     }
 
@@ -189,9 +189,13 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         }
         return new Promise((resolve, reject) => {
             this._collection
-                .createIndex(dataMember.key, {
-                    unique: dataMember.unique ? true : false,
-                })
+                .createIndex(
+                    dataMember.key,
+                    {
+                        unique: dataMember.unique ? true : false,
+                    },
+                    undefined,
+                )
                 .then(() => {
                     resolve();
                 })
@@ -311,7 +315,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             if (!this._checkIfReady(reject)) {
                 return;
             }
-            this._collection.count(query).then(resolve).catch(reject);
+            this._collection.countDocuments(query).then(resolve).catch(reject);
         });
     }
 

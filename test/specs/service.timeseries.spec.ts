@@ -16,7 +16,7 @@ describe('Time-series DataObjectService', () => {
         // A previous run may have created the collection as a regular collection.
         await client
             .db('test')
-            .collection(collectionName)
+            .collection<any>(collectionName)
             .drop()
             .catch(() => undefined);
 
@@ -43,7 +43,7 @@ describe('Time-series DataObjectService', () => {
         await objectDataService.emitAsync('destroy');
         await client
             .db('test')
-            .collection(collectionName)
+            .collection<any>(collectionName)
             .drop()
             .catch(() => undefined);
         await client.close();
@@ -62,7 +62,7 @@ describe('Time-series DataObjectService', () => {
     });
 
     it('should create the configured compound index', async () => {
-        const indexes = await client.db('test').collection(collectionName).indexes();
+        const indexes = await client.db('test').collection<any>(collectionName).indexes();
         const keys = indexes.map((index) => index.key as any);
         expect(keys.some((key) => key['meta.uid'] === 1 && key.time === -1)).to.equal(true);
     });
@@ -73,7 +73,7 @@ describe('Time-series DataObjectService', () => {
         object.createdTimestamp = Date.parse('10 Mar 1995 00:00:00 GMT');
         await objectDataService.insert(object.uid, object);
 
-        const document = await client.db('test').collection(collectionName).findOne({ _id: 'timeseries1' });
+        const document = await client.db('test').collection<any>(collectionName).findOne({ _id: 'timeseries1' });
         expect(document.time).to.be.instanceOf(Date);
         expect(document.time.getTime()).to.equal(Date.parse('10 Mar 1995 00:00:00 GMT'));
         expect(document.meta).to.deep.equal({
@@ -89,7 +89,7 @@ describe('Time-series DataObjectService', () => {
         object.createdTimestamp = Date.parse('10 Mar 1995 02:00:00 GMT');
         await objectDataService.insert(object.uid, object);
 
-        const count = await client.db('test').collection(collectionName).countDocuments({
+        const count = await client.db('test').collection<any>(collectionName).countDocuments({
             _id: 'timeseries2',
         });
         expect(count).to.equal(2);
@@ -113,7 +113,7 @@ describe('Time-series DataObjectService', () => {
 
     it('should delete a data object', async () => {
         await objectDataService.delete('timeseries2');
-        const count = await client.db('test').collection(collectionName).countDocuments({
+        const count = await client.db('test').collection<any>(collectionName).countDocuments({
             _id: 'timeseries2',
         });
         expect(count).to.equal(0);
@@ -129,7 +129,7 @@ describe('Time-series DataObjectService with default options', () => {
         client = await MongoClient.connect(MONGO_URL);
         await client
             .db('test')
-            .collection(collectionName)
+            .collection<any>(collectionName)
             .drop()
             .catch(() => undefined);
         objectDataService = new DataObjectService(
@@ -147,7 +147,7 @@ describe('Time-series DataObjectService with default options', () => {
         await objectDataService.emitAsync('destroy');
         await client
             .db('test')
-            .collection(collectionName)
+            .collection<any>(collectionName)
             .drop()
             .catch(() => undefined);
         await client.close();
@@ -157,7 +157,7 @@ describe('Time-series DataObjectService with default options', () => {
         const object = new DataObject('defaults');
         await objectDataService.insert(object.uid, object);
 
-        const document = await client.db('test').collection(collectionName).findOne({ _id: 'defaults' });
+        const document = await client.db('test').collection<any>(collectionName).findOne({ _id: 'defaults' });
         expect(document.time).to.be.instanceOf(Date);
         expect(document.meta.uid).to.equal('defaults');
 
@@ -168,7 +168,9 @@ describe('Time-series DataObjectService with default options', () => {
         });
         expect(collectionInfo.options.expireAfterSeconds).to.equal(undefined);
 
-        const keys = (await client.db('test').collection(collectionName).indexes()).map((index) => index.key as any);
+        const keys = (await client.db('test').collection<any>(collectionName).indexes()).map(
+            (index) => index.key as any,
+        );
         expect(keys.some((key) => key['meta.uid'] === 1 && key.time === -1)).to.equal(true);
     });
 });
