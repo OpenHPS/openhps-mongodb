@@ -28,16 +28,21 @@ This repository contains the MongoDB component for OpenHPS (Open Source Hybrid P
 OpenHPS is a data processing positioning framework. It is designed to support many different use cases ranging from simple positioning such as detecting the position of a pawn on a chessboard using RFID, to indoor positioning methods using multiple cameras.
 
 ## Features
-- ```MongoDataServiceDriver``` that can be used to initialize a ```DataService``` or as a standalone data service.
+
+- `MongoDataServiceDriver` that can be used to initialize a `DataService` or as a standalone data service.
+- Optional `timeSeries` storage in a MongoDB [time-series collection](https://www.mongodb.com/docs/manual/core/timeseries-collections/) for high-frequency, append-only data such as positioning samples.
 
 ## Getting Started
+
 If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps/core with the following command.
+
 ```bash
 npm install @openhps/mongodb --save
 ```
 
 ### Usage
-You can use a ```MongoDataServiceDriver``` in a data service such as a ```DataObjectService``` to
+
+You can use a `MongoDataServiceDriver` in a data service such as a `DataObjectService` to
 use the driver to store data objects of a specific type.
 
 ```typescript
@@ -45,28 +50,66 @@ import { ModelBuilder, DataObjectService, DataObject, ReferenceSpace } from '@op
 import { MongoDataServiceDriver } from '@openhps/mongodb';
 
 ModelBuilder.create()
-    .addService(new DataObjectService(new MongoDataServiceDriver(DataObject, {
-        dbURL: "mongodb://mongo:27017",
-        dbName: "myObjects"
-    })))
-    .addService(new DataObjectService(new MongoDataServiceDriver(ReferenceSpace, {
-        dbURL: "mongodb://mongo:27017",
-        dbName: "mySpaces",
-        collectionName: "referenceSpaces"
-    })))
+    .addService(
+        new DataObjectService(
+            new MongoDataServiceDriver(DataObject, {
+                dbURL: 'mongodb://mongo:27017',
+                dbName: 'myObjects',
+            }),
+        ),
+    )
+    .addService(
+        new DataObjectService(
+            new MongoDataServiceDriver(ReferenceSpace, {
+                dbURL: 'mongodb://mongo:27017',
+                dbName: 'mySpaces',
+                collectionName: 'referenceSpaces',
+            }),
+        ),
+    )
     .addShape(/* ... */)
-    .build().then(model => {
+    .build()
+    .then((model) => {
         /* ... */
     });
 ```
 
+### Time-series collections
+
+Passing `timeSeries` stores the objects in a MongoDB time-series collection: the collection is
+created with that layout when it does not exist yet, and its indexes are created on connect. This
+is useful for high-frequency, append-only data such as positioning samples.
+
+```typescript
+new MongoDataServiceDriver(DataObject, {
+    dbURL: 'mongodb://mongo:27017',
+    dbName: 'positioning',
+    collectionName: 'positions',
+    timeSeries: {
+        timeField: 'time', // BSON date, taken from createdTimestamp by default
+        metaField: 'meta', // bucket metadata
+        metaFields: ['uid'], // members copied into meta; first member is indexed
+        granularity: 'seconds', // bucket granularity hint
+        expireAfterSeconds: 604800, // optional TTL
+    },
+});
+```
+
+The driver writes `time` and `meta` itself, and by default creates a compound index on
+`meta.<first metaField>` and `time` (descending). MongoDB does not support unique indexes or
+single-document updates on time-series collections, so each insert appends a sample and
+`delete` removes every sample with the same identifier.
+
 ## Contributors
-The framework is open source and is mainly developed by PhD Student Maxim Van de Wynckel as part of his research towards *Hybrid Positioning and Implicit Human-Computer Interaction* under the supervision of Prof. Dr. Beat Signer.
+
+The framework is open source and is mainly developed by PhD Student Maxim Van de Wynckel as part of his research towards _Hybrid Positioning and Implicit Human-Computer Interaction_ under the supervision of Prof. Dr. Beat Signer.
 
 ## Contributing
+
 Use of OpenHPS, contributions and feedback is highly appreciated. Please read our [contributing guidelines](https://github.com/OpenHPS/.github/blob/HEAD/CONTRIBUTING.md) for more information.
 
 ## License
+
 Copyright (C) 2019-2022 Maxim Van de Wynckel & Vrije Universiteit Brussel
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
