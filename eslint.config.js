@@ -55,7 +55,9 @@ module.exports = tseslint.config(
             '@typescript-eslint/explicit-module-boundary-types': 'off',
             '@typescript-eslint/no-empty-interface': 'off',
             '@typescript-eslint/no-empty-object-type': 'off',
-            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+            // ignoreRestSiblings: destructuring out the non-MongoClient keys of
+            // DatabaseOptions (MongoDataServiceDriver) leaves them intentionally unused.
+            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
             '@typescript-eslint/no-require-imports': 'off',
             // Replaces the archived eslint-plugin-deprecation. Requires type
             // information, so it is off where there is no tsconfig project.

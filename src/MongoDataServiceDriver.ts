@@ -57,9 +57,11 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
     };
 
     constructor(dataType: Constructor<T>, options: DatabaseOptions) {
-        super(dataType);
-        this.options = options;
-        this.options.collectionName = this.options.collectionName || this.uid.toLowerCase();
+        super(dataType, options);
+        this.options = {
+            ...options,
+            collectionName: options.collectionName || this.uid.toLowerCase(),
+        };
         if (this.options.timeSeries) {
             this._timeSeries = {
                 timeField: this.options.timeSeries.timeField ?? 'time',
@@ -86,9 +88,10 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         if (this._client !== undefined) {
             return;
         }
-        const client = await MongoClient.connect(this.options.dbURL, {
-            auth: this.options.auth,
-        });
+        // The driver-only keys are not MongoClientOptions; forward everything else.
+        const { dbURL, dbName, collectionName, timeSeries, serialize, deserialize, keepChangelog, ...clientOptions } =
+            this.options;
+        const client = await MongoClient.connect(dbURL, clientOptions);
         this._client = client;
         this._db = client.db(this.options.dbName);
         await this._createTimeSeriesCollection();
@@ -211,7 +214,10 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
         if (this._client === undefined) {
             return Promise.resolve();
         }
-        return this._client.close();
+        return this._client.close().then(() => {
+            this._client = undefined;
+            this._collection = undefined;
+        });
     }
 
     findByUID(id: I): Promise<T> {
@@ -219,7 +225,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             this.findOne({ _id: id })
                 .then((object) => {
                     if (object === undefined) {
-                        return reject(`${this.dataType.name} with identifier #${id} not found!`);
+                        return reject(new Error(`${this.dataType.name} with identifier #${id} not found!`));
                     }
                     resolve(object);
                 })
@@ -268,7 +274,7 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
             if (!this._checkIfReady(reject)) {
                 return;
             }
-            const preparedObject = DataSerializer.serialize(object);
+            const preparedObject = this.options.serialize(object);
             preparedObject._id = id;
             if (this._timeSeries) {
                 // Time-series collections do not support upserts or single-document updates, so
@@ -291,9 +297,13 @@ export class MongoDataServiceDriver<I, T> extends DataServiceDriver<I, T> {
                             .then(() => {
                                 resolve(object);
                             })
-                            .catch(() => {
-                                // Ignore insert error - possible race condition
-                                resolve(object);
+                            .catch((ex) => {
+                                // Ignore a duplicate key - another insert with the same identifier won the race
+                                if (ex.code === 11000) {
+                                    resolve(object);
+                                    return;
+                                }
+                                reject(ex);
                             });
                     } else {
                         this._collection

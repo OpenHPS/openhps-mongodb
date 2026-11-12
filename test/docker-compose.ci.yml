@@ -5,8 +5,7 @@
 # needs the database, so this brings up mongod alone with its port published on the
 # host — hence `mongodb://localhost:27017`, which is what MONGO_URL defaults to.
 #
-# Pinned to 7: the driver is still on 4.x, and the 4 -> 7 driver migration is tracked
-# separately. mongod 7 is within that driver's supported range.
+# Pinned to 7: the driver is on 7.x, and mongod 7 is within its supported server range.
 services:
     mongo:
         image: mongo:7
