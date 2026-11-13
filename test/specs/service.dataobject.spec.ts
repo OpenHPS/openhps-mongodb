@@ -254,11 +254,14 @@ describe('DataObjectService', () => {
         objectDataService
             .findByPosition(new Absolute2DPosition(5, 6))
             .then((objects) => {
-                expect(objects[0].getPosition()).to.be.instanceOf(Absolute2DPosition);
-                const location = objects[0].getPosition() as Absolute2DPosition;
+                // The filter matches both 2D and 3D positions at (5, 6), so pick the 2D one
+                // rather than relying on result order.
+                const object = objects.find((o) => o.getPosition() instanceof Absolute2DPosition);
+                expect(object).to.not.be.undefined;
+                const location = object.getPosition() as Absolute2DPosition;
                 expect(location.x).to.equal(5);
                 expect(location.y).to.equal(6);
-                expect(objects[0].displayName).to.equal('Test-updated');
+                expect(object.displayName).to.equal('Test-updated');
                 done();
             })
             .catch((ex) => {
